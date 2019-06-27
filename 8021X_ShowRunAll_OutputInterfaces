@@ -1,0 +1,43 @@
+import csv
+import pandas as pd
+
+listFile = 'C:\TFTP-Root\ListFile_Master.csv'
+
+with open(listFile, 'r') as LFile: 
+    Lreader = csv.reader(LFile)
+    LRead = list(Lreader)
+    for f in LRead:
+        fstr = str (f) 
+        fstr = fstr.strip ("\[\'\'\]")
+        inFile = 'C:\TFTP-Root\ShowRunAll\ReExport\{}.tb.local_ALL.csv'.format(fstr)
+        outFile = 'C:\TFTP-Root\ShowRunAll\Output\{}_Output.csv'.format(fstr)
+        array1 = []
+        array2 = []
+        array3 = []
+        array4 = []
+        rowstore = ' '
+        with open(inFile, 'r') as dataFile, open(outFile, 'a', newline='') as pubFile:
+            writer = csv.writer(pubFile, dialect = 'excel')
+            for row in dataFile:
+                rowstr = str (row)
+                if "interface Gig" in rowstr:
+                    if "interface Gig" in rowstore:
+                        array1.append(row)
+                        array2.append('None')
+                        rowstore = row
+                    else:
+                        array1.append(row)
+                        rowstore = row
+                        array3.append(f)
+                        
+                if "authentication port-control" in rowstr:
+                    array2.append(row)
+                    rowstore = row
+                    array3.append(f)
+                else:
+                    continue
+            array2.append('None')            
+            array2.pop(0)
+            zippedlist = list(zip(array1, array2, array3))
+            dfObj = pd.DataFrame(zippedlist, columns = ['Interface','Configuration','Site'])
+            dfObj.to_csv(outFile)
