@@ -16,8 +16,7 @@ with open(listFile, 'r') as LFile:
         array3 = []
         array4 = []
         rowstore = ' '
-        with open(inFile, 'r') as dataFile, open(outFile, 'a', newline='') as pubFile:
-            writer = csv.writer(pubFile, dialect = 'excel')
+        with open(inFile, 'r') as dataFile:
             for row in dataFile:
                 rowstr = str (row)
                 if "interface Gig" in rowstr:
@@ -25,6 +24,18 @@ with open(listFile, 'r') as LFile:
                         array1.append(row)
                         array2.append('None')
                         rowstore = row
+                        array3.append(f)
+                    else:
+                        array1.append(row)
+                        rowstore = row
+                        array3.append(f)
+                
+                if "interface Fas" in rowstr:
+                    if "interface Fas" in rowstore:
+                        array1.append(row)
+                        array2.append('None')
+                        rowstore = row
+                        array3.append(f)
                     else:
                         array1.append(row)
                         rowstore = row
@@ -36,8 +47,10 @@ with open(listFile, 'r') as LFile:
                     array3.append(f)
                 else:
                     continue
-            array2.append('None')            
-            array2.pop(0)
+            if "interface " in rowstore:
+                array2.append('None')            
+            if "authentication" in array2[0]:
+                array2.pop(0)
             zippedlist = list(zip(array1, array2, array3))
             dfObj = pd.DataFrame(zippedlist, columns = ['Interface','Configuration','Site'])
-            dfObj.to_csv(outFile)
+            dfObj.to_csv(outFile,index=False)
